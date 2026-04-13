@@ -1,0 +1,470 @@
+# Monochrome Slot Machine with Aggressive Bias
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Name Chooser | Pro Slot Machine</title>
+    <!-- Fira Code Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #050505;
+            --surface-color: #111111;
+            --text-color: #ffffff;
+            --text-dim: #666666;
+            --accent-color: #05ee93;
+            --border-color: #222222;
+            --font-main: 'Fira Code', monospace;
+            --slot-height: 90px;
+        }
+
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* App Container */
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2.5rem;
+            z-index: 10;
+        }
+
+        header h1 {
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: var(--text-dim);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+
+        /* Slot Window Styling */
+        .slot-machine {
+            position: relative;
+            width: 100%;
+            height: calc(var(--slot-height) * 3);
+            background: #000;
+            border: 2px solid var(--border-color);
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        /* The glass/shading effect */
+        .slot-machine::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                to bottom,
+                rgba(0,0,0,0.9) 0%,
+
+                transparent 20%,
+                transparent 80%,
+                rgba(0,0,0,0.9) 100%
+            );
+            z-index: 4;
+            pointer-events: none;
+        }
+
+        /* Target Indicator */
+        .slot-machine::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: var(--slot-height);
+            transform: translateY(-50%);
+            border-top: 2px solid var(--accent-color);
+            border-bottom: 2px solid var(--accent-color);
+
+            background: rgba(5, 238, 147, 0.03);
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        .reel {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            will-change: transform;
+        }
+
+        .name-item {
+            height: var(--slot-height);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 500;
+
+            color: var(--text-dim);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 0 2rem;
+            border-bottom: 1px solid #080808;
+        }
+
+        /* Controls */
+        .btn-group {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        button {
+            background: none;
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 1rem 2.5rem;
+
+            font-family: var(--font-main);
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        button:hover {
+            background: var(--accent-color);
+            color: var(--bg-color);
+            box-shadow: 0 0 25px rgba(5, 238, 147, 0.4);
+        }
+
+        button:disabled {
+            border-color: #333;
+            color: #333;
+            cursor: not-allowed;
+
+            box-shadow: none;
+        }
+
+        button.alt {
+            border-color: var(--text-dim);
+            color: var(--text-dim);
+        }
+
+        button.alt:hover {
+            border-color: var(--text-color);
+            color: var(--text-color);
+            background: none;
+            box-shadow: none;
+        }
+
+        /* Winner Overlay - Full Center */
+        #winnerOverlay {
+            position: fixed;
+            inset: 0;
+
+            background: rgba(0,0,0,0.96);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        #winnerOverlay.visible {
+            display: flex;
+        }
+
+        .winner-card {
+            text-align: center;
+            padding: 2rem;
+            animation: zoomIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+
+        .winner-title {
+            color: var(--accent-color);
+            text-transform: uppercase;
+            letter-spacing: 10px;
+            font-size: 0.8rem;
+            margin-bottom: 2rem;
+            opacity: 0.7;
+        }
+
+        .winner-name {
+            font-size: clamp(2rem, 10vw, 5rem);
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 4rem;
+            text-shadow: 0 0 40px rgba(5, 238, 147, 0.5);
+        }
+
+        @keyframes zoomIn {
+            from { transform: scale(0.5); opacity: 0; }
+
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        /* Settings Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 500;
+            padding: 1.5rem;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal-body {
+            background: var(--surface-color);
+
+            border: 1px solid var(--border-color);
+            width: 100%;
+            max-width: 500px;
+            padding: 2.5rem;
+        }
+
+        .modal-body h2 {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            color: var(--accent-color);
+            margin-bottom: 1.5rem;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            background: #000;
+            border: 1px solid var(--border-color);
+            color: #fff;
+
+            padding: 1rem;
+            font-family: var(--font-main);
+            margin-bottom: 1.5rem;
+            resize: none;
+            font-size: 0.9rem;
+        }
+
+        .range-box { margin-bottom: 2rem; }
+        .range-box label { display: block; font-size: 0.75rem; color: var(--text-dim); margin-bottom: 0.75rem; text-transform: uppercase; }
+        input[type="range"] { width: 100%; accent-color: var(--accent-color); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Sequence Picker</h1>
+        </header>
+
+
+        <div class="slot-machine">
+            <div class="reel" id="reelContainer"></div>
+        </div>
+
+        <div class="btn-group">
+            <button id="spinAction">Spin Reel</button>
+            <button class="alt" id="openSettings">Config</button>
+        </div>
+    </div>
+
+    <!-- Victory Screen -->
+    <div id="winnerOverlay">
+        <div class="winner-card">
+            <div class="winner-title">Selected Winner</div>
+            <div class="winner-name" id="finalResult">---</div>
+            <button id="closeVictory">Dismiss</button>
+        </div>
+    </div>
+
+
+    <!-- Config Screen -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal-body">
+            <h2>System Config</h2>
+            <textarea id="listInput" placeholder="Name [Luck%]"></textarea>
+            
+            <div class="range-box">
+                <label>Duration: <span id="durLabel">3</span>s</label>
+                <input type="range" id="durRange" min="1" max="10" step="1" value="3">
+            </div>
+
+            <div style="display: flex; justify-content: flex-end;">
+                <button id="applySettings">Apply</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Core Data ---
+
+        let appState = {
+            raw: "Alice\nBob [50%]\nCharlie\nDavid [99%]\nEve\nFrank",
+            parsed: [], 
+            speed: 3,
+            busy: false
+        };
+
+        function refreshLogic() {
+            const lines = appState.raw.split('\n').map(l => l.trim()).filter(l => l !== "");
+            appState.parsed = lines.map(line => {
+                const biasMatch = line.match(/(.*)\[(\d+)%\]/);
+                if (biasMatch) {
+                    return {
+                        label: biasMatch[1].trim(),
+                        weight: 1 + parseInt(biasMatch[2])
+                    };
+                }
+                return { label: line, weight: 1 };
+            });
+
+        }
+
+        // Persistence
+        const cache = localStorage.getItem('slot_v4_data');
+        if (cache) {
+            const d = JSON.parse(cache);
+            appState.raw = d.raw || appState.raw;
+            appState.speed = d.speed || 3;
+        }
+        refreshLogic();
+
+        // --- DOM Elements ---
+        const reel = document.getElementById('reelContainer');
+        const spinBtn = document.getElementById('spinAction');
+        const settingsBtn = document.getElementById('openSettings');
+        const modal = document.getElementById('settingsModal');
+        const listArea = document.getElementById('listInput');
+        const durSlider = document.getElementById('durRange');
+        const durLabel = document.getElementById('durLabel');
+
+        const applyBtn = document.getElementById('applySettings');
+        const victory = document.getElementById('winnerOverlay');
+        const finalName = document.getElementById('finalResult');
+        const closeVictory = document.getElementById('closeVictory');
+
+        const SLOT_H = 90;
+
+        // --- Reel Rendering ---
+        function buildReel() {
+            reel.innerHTML = '';
+            if (appState.parsed.length === 0) return;
+
+            const loops = 20;
+            for(let i=0; i<loops; i++) {
+                appState.parsed.forEach(item => {
+                    const el = document.createElement('div');
+                    el.className = 'name-item';
+                    el.textContent = item.label;
+                    reel.appendChild(el);
+
+                });
+            }
+            reel.style.transition = 'none';
+            reel.style.transform = `translateY(${SLOT_H}px)`;
+        }
+
+        // --- Animation ---
+        function runSpin() {
+            if (appState.busy || appState.parsed.length === 0) return;
+            appState.busy = true;
+            spinBtn.disabled = true;
+
+            // Weighted Random Math
+            const totalWeight = appState.parsed.reduce((sum, item) => sum + item.weight, 0);
+            let selector = Math.random() * totalWeight;
+            let winnerIdx = 0;
+            let runningSum = 0;
+            
+            for(let i=0; i < appState.parsed.length; i++) {
+
+                runningSum += appState.parsed[i].weight;
+                if (selector <= runningSum) {
+                    winnerIdx = i;
+                    break;
+                }
+            }
+
+            const winner = appState.parsed[winnerIdx];
+            buildReel(); 
+
+            const count = appState.parsed.length;
+            const targetSet = 17;
+            const targetItem = (count * targetSet) + winnerIdx;
+            const targetPos = SLOT_H - (targetItem * SLOT_H);
+
+            setTimeout(() => {
+                reel.style.transition = `transform ${appState.speed}s cubic-bezier(0.1, 0, 0, 1)`;
+                reel.style.transform = `translateY(${targetPos}px)`;
+            }, 50);
+
+
+            setTimeout(() => {
+                appState.busy = false;
+                spinBtn.disabled = false;
+                showWinner(winner.label);
+            }, appState.speed * 1000 + 400);
+        }
+
+        function showWinner(name) {
+            finalName.textContent = name;
+            victory.classList.add('visible');
+        }
+
+        // --- Event Binding ---
+        settingsBtn.onclick = () => {
+            listArea.value = appState.raw;
+            durSlider.value = appState.speed;
+            durLabel.textContent = appState.speed;
+            modal.classList.add('active');
+        };
+
+
+        durSlider.oninput = () => durLabel.textContent = durSlider.value;
+
+        applyBtn.onclick = () => {
+            appState.raw = listArea.value;
+            appState.speed = parseInt(durSlider.value);
+            refreshLogic();
+            localStorage.setItem('slot_v4_data', JSON.stringify({
+                raw: appState.raw, speed: appState.speed
+            }));
+            modal.classList.remove('active');
+            buildReel();
+        };
+
+        spinBtn.onclick = runSpin;
+        closeVictory.onclick = () => {
+            victory.classList.remove('visible');
+        };
+
+        window.onload = buildReel;
+
+    </script>
+</body>
+</html>
+
+
