@@ -1,0 +1,517 @@
+# Modern Monochrome Timer
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Monochrome Timer</title>
+    <!-- Importing Fira Code from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0a0a0a;
+            --surface-color: #1a1a1a;
+            --text-main: #e0e0e0;
+            --text-dim: #888888;
+            --accent: #05ee93;
+            --error: #ff4d4d;
+        }
+
+        * {
+
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Fira Code', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            width: 100%;
+
+            max-width: 650px;
+            padding: 2rem;
+            position: relative;
+        }
+
+        /* Large Timer Display */
+        .timer-display {
+            font-size: 5.5rem;
+            font-weight: 300;
+            margin-bottom: 1rem;
+            letter-spacing: -2px;
+            font-variant-numeric: tabular-nums;
+            display: flex;
+            justify-content: center;
+            align-items: baseline;
+        }
+
+        .timer-display.active {
+            color: var(--accent);
+
+            text-shadow: 0 0 20px rgba(5, 238, 147, 0.2);
+        }
+
+        /* Input Styles */
+        .input-group {
+            margin-bottom: 2.5rem;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .input-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        input {
+
+            background: var(--surface-color);
+            border: 1px solid #333;
+            color: var(--accent);
+            font-family: 'Fira Code', monospace;
+            font-size: 1.2rem;
+            padding: 0.8rem;
+            width: 75px;
+            text-align: center;
+            border-radius: 4px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus {
+            border-color: var(--accent);
+        }
+
+        .label {
+            color: var(--text-dim);
+
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            margin-top: 8px;
+            letter-spacing: 1px;
+        }
+
+        .separator {
+            font-size: 1.5rem;
+            color: var(--text-dim);
+            padding-bottom: 25px;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+
+        button {
+            background: transparent;
+            border: 1px solid var(--text-dim);
+            color: var(--text-main);
+            font-family: 'Fira Code', monospace;
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            min-width: 100px;
+        }
+
+        button:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(5, 238, 147, 0.05);
+        }
+
+
+        button.primary {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        /* Info Button & Tooltip */
+        .info-wrapper {
+            position: absolute;
+            top: 0;
+            right: 2rem;
+        }
+
+        .info-trigger {
+            width: 32px;
+            height: 32px;
+
+            border-radius: 50%;
+            border: 1px solid var(--text-dim);
+            color: var(--text-dim);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: help;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .info-trigger:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            box-shadow: 0 0 10px rgba(5, 238, 147, 0.2);
+        }
+
+        .shortcuts-tooltip {
+            position: absolute;
+
+            top: 40px;
+            right: 0;
+            background: var(--surface-color);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #222;
+            width: 250px;
+            text-align: left;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .info-wrapper:hover .shortcuts-tooltip {
+            opacity: 1;
+            visibility: visible;
+
+            transform: translateY(0);
+        }
+
+        .shortcuts-tooltip h3 {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            letter-spacing: 2px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 8px;
+        }
+
+        .shortcut-item {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+
+        }
+
+        .key {
+            color: var(--accent);
+            border: 1px solid rgba(5, 238, 147, 0.3);
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-size: 0.7rem;
+        }
+
+        /* Message Box */
+        #message-box {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--surface-color);
+            border: 1px solid var(--accent);
+            padding: 10px 20px;
+
+            border-radius: 4px;
+            display: none;
+            z-index: 100;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            height: 2px;
+            background: #222;
+            margin-bottom: 2rem;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        #progress-bar {
+            height: 100%;
+            width: 0%;
+
+            background: var(--accent);
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        @media (max-width: 480px) {
+            .timer-display { font-size: 3.5rem; }
+            .info-wrapper { right: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="info-wrapper">
+
+            <div class="info-trigger">?</div>
+            <div class="shortcuts-tooltip">
+                <h3>Shortcuts</h3>
+                <div class="shortcut-item"><span>Start / Pause</span> <span class="key">Space</span></div>
+                <div class="shortcut-item"><span>Reset</span> <span class="key">R</span></div>
+                <div class="shortcut-item"><span>Stop</span> <span class="key">S</span></div>
+                <div class="shortcut-item"><span>Set Time</span> <span class="key">Enter</span></div>
+            </div>
+        </div>
+
+        <div id="display-container" class="timer-display">
+            <span id="main-time">00:00:00</span>
+        </div>
+        
+        <div class="progress-container">
+            <div id="progress-bar"></div>
+        </div>
+
+        <div class="input-group">
+
+            <div class="input-item">
+                <input type="number" id="hrs" placeholder="00" min="0" max="99">
+                <div class="label">Hrs</div>
+            </div>
+            <div class="separator">:</div>
+            <div class="input-item">
+                <input type="number" id="mins" placeholder="00" min="0" max="59">
+                <div class="label">Min</div>
+            </div>
+            <div class="separator">:</div>
+            <div class="input-item">
+                <input type="number" id="secs" placeholder="00" min="0" max="59">
+                <div class="label">Sec</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="startPauseBtn" class="primary">Start</button>
+            <button id="stopBtn">Stop</button>
+
+            <button id="resetBtn">Reset</button>
+        </div>
+    </div>
+
+    <div id="message-box">Timer Finished!</div>
+
+    <script>
+        let timeLeftMs = 0; 
+        let totalTimeMs = 0;
+        let timerId = null;
+        let isPaused = true;
+        let lastTimestamp = null;
+
+        const mainDisplay = document.getElementById('main-time');
+        const hrsInput = document.getElementById('hrs');
+        const minsInput = document.getElementById('mins');
+        const secsInput = document.getElementById('secs');
+        const startPauseBtn = document.getElementById('startPauseBtn');
+        const stopBtn = document.getElementById('stopBtn');
+
+        const resetBtn = document.getElementById('resetBtn');
+        const progressBar = document.getElementById('progress-bar');
+        const msgBox = document.getElementById('message-box');
+        const displayContainer = document.getElementById('display-container');
+
+        function updateDisplay() {
+            let tempMs = timeLeftMs;
+            
+            const hrs = Math.floor(tempMs / 3600000);
+            tempMs %= 3600000;
+            
+            const mins = Math.floor(tempMs / 60000);
+            tempMs %= 60000;
+            
+            const secs = Math.ceil(tempMs / 1000);
+
+            mainDisplay.textContent = 
+                `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            
+
+            // Update progress bar
+            if (totalTimeMs > 0) {
+                const progress = ((totalTimeMs - timeLeftMs) / totalTimeMs) * 100;
+                progressBar.style.width = `${progress}%`;
+            } else {
+                progressBar.style.width = '0%';
+            }
+        }
+
+        function setTimerFromInput() {
+            const h = parseInt(hrsInput.value) || 0;
+            const m = parseInt(minsInput.value) || 0;
+            const s = parseInt(secsInput.value) || 0;
+            
+            timeLeftMs = (h * 3600000) + (m * 60000) + (s * 1000);
+            totalTimeMs = timeLeftMs;
+            
+            updateDisplay();
+            hrsInput.blur();
+
+            minsInput.blur();
+            secsInput.blur();
+        }
+
+        function step(timestamp) {
+            if (isPaused) return;
+
+            if (!lastTimestamp) lastTimestamp = timestamp;
+            const delta = timestamp - lastTimestamp;
+            lastTimestamp = timestamp;
+
+            timeLeftMs -= delta;
+
+            if (timeLeftMs <= 0) {
+                timeLeftMs = 0;
+                updateDisplay();
+                finishTimer();
+                return;
+            }
+
+
+            updateDisplay();
+            timerId = requestAnimationFrame(step);
+        }
+
+        function startPause() {
+            if (timeLeftMs <= 0 && isPaused) {
+                setTimerFromInput();
+            }
+            
+            if (timeLeftMs <= 0) return;
+
+            if (isPaused) {
+                // Start
+                isPaused = false;
+                startPauseBtn.textContent = 'Pause';
+                displayContainer.classList.add('active');
+                lastTimestamp = null;
+                timerId = requestAnimationFrame(step);
+            } else {
+
+                // Pause
+                pauseTimer();
+            }
+        }
+
+        function pauseTimer() {
+            isPaused = true;
+            cancelAnimationFrame(timerId);
+            startPauseBtn.textContent = 'Resume';
+            displayContainer.classList.remove('active');
+        }
+
+        function stopTimer() {
+            cancelAnimationFrame(timerId);
+            isPaused = true;
+            timeLeftMs = 0;
+            totalTimeMs = 0;
+            startPauseBtn.textContent = 'Start';
+            displayContainer.classList.remove('active');
+
+            updateDisplay();
+        }
+
+        function resetTimer() {
+            cancelAnimationFrame(timerId);
+            isPaused = true;
+            const h = parseInt(hrsInput.value) || 0;
+            const m = parseInt(minsInput.value) || 0;
+            const s = parseInt(secsInput.value) || 0;
+            timeLeftMs = (h * 3600000) + (m * 60000) + (s * 1000);
+            totalTimeMs = timeLeftMs;
+            startPauseBtn.textContent = 'Start';
+            displayContainer.classList.remove('active');
+            updateDisplay();
+        }
+
+        function finishTimer() {
+            isPaused = true;
+            cancelAnimationFrame(timerId);
+
+            startPauseBtn.textContent = 'Start';
+            displayContainer.classList.remove('active');
+            showMessage("Time's up!");
+        }
+
+        function showMessage(text) {
+            msgBox.textContent = text;
+            msgBox.style.display = 'block';
+            setTimeout(() => {
+                msgBox.style.display = 'none';
+            }, 4000);
+        }
+
+        // Event Listeners
+        startPauseBtn.addEventListener('click', startPause);
+        stopBtn.addEventListener('click', stopTimer);
+        resetBtn.addEventListener('click', resetTimer);
+
+        // Keyboard Shortcuts
+
+        window.addEventListener('keydown', (e) => {
+            if (document.activeElement.tagName === 'INPUT') {
+                if (e.key === 'Enter') {
+                    setTimerFromInput();
+                }
+                return;
+            }
+
+            switch(e.code) {
+                case 'Space':
+                    e.preventDefault();
+                    startPause();
+                    break;
+                case 'KeyR':
+                    resetTimer();
+                    break;
+                case 'KeyS':
+                    stopTimer();
+                    break;
+
+                case 'Enter':
+                    setTimerFromInput();
+                    break;
+            }
+        });
+
+        // Initialize display
+        updateDisplay();
+    </script>
+</body>
+</html>
+
+
