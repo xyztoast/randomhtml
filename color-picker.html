@@ -159,13 +159,26 @@
         .picker-3d-container {
             position: relative;
 
-            background: var(--panel-bg);
+            background-color: #1a1a1a;
+            background-image: 
+                linear-gradient(45deg, #111 25%, transparent 25%), 
+                linear-gradient(-45deg, #111 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #111 75%), 
+                linear-gradient(-45deg, transparent 75%, #111 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
             border: 1px solid var(--border-color);
             border-radius: 4px;
             overflow: hidden;
             min-height: 600px;
             cursor: grab;
             user-select: none;
+        }
+
+        .picker-3d-container:fullscreen {
+            border: none;
+            border-radius: 0;
+
         }
 
         #canvas-3d {
@@ -178,11 +191,35 @@
             position: absolute;
             top: 15px;
             left: 15px;
-
             pointer-events: none;
             font-size: 0.7rem;
             color: var(--text-dim);
             z-index: 10;
+        }
+
+        .fullscreen-btn {
+
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            font-family: var(--font-fira);
+            font-size: 0.6rem;
+            padding: 6px 10px;
+            cursor: pointer;
+            z-index: 100;
+            border-radius: 2px;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .fullscreen-btn:hover {
+            background: #222;
+
+            border-color: var(--accent);
         }
 
         #labels-overlay {
@@ -195,10 +232,24 @@
             z-index: 5;
         }
 
+        #alpha-feedback {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 4rem;
+
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.2);
+            pointer-events: none;
+            z-index: 20;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
         .corner-label {
             position: absolute;
             font-size: 0.65rem;
-
             background: rgba(0, 0, 0, 0.85);
             border: 1px solid var(--border-color);
             padding: 4px 8px;
@@ -207,6 +258,7 @@
             transform: translate(-50%, -50%);
             display: flex;
             flex-direction: column;
+
             align-items: center;
             transition: opacity 0.15s ease, background 0.2s ease;
             cursor: pointer;
@@ -218,7 +270,6 @@
             border-color: var(--accent);
         }
 
-
         /* Sidebar Panels */
         .panel {
             background: var(--panel-bg);
@@ -226,6 +277,7 @@
             border-radius: 4px;
             padding: 20px;
         }
+
 
         .label {
             font-size: 0.75rem;
@@ -238,7 +290,6 @@
         /* Data Display */
         .color-preview-large {
             width: 100%;
-
             height: 80px;
             border: 1px solid var(--border-color);
             margin-bottom: 15px;
@@ -247,6 +298,7 @@
                               linear-gradient(-45deg, #111 25%, transparent 25%), 
                               linear-gradient(45deg, transparent 75%, #111 75%), 
                               linear-gradient(-45deg, transparent 75%, #111 75%);
+
             background-size: 12px 12px;
             background-position: 0 0, 0 6px, 6px -6px, -6px 0px;
         }
@@ -258,7 +310,6 @@
         }
 
         .data-row {
-
             display: flex;
             flex-direction: column;
             gap: 8px;
@@ -267,6 +318,7 @@
 
         .data-header {
             display: flex;
+
             justify-content: space-between;
             align-items: center;
         }
@@ -278,7 +330,6 @@
             gap: 0;
             width: 100%;
             background: #1a1a1a;
-
             border: 1px solid var(--border-color);
             border-radius: 4px;
             overflow: hidden;
@@ -287,6 +338,7 @@
         .data-input {
             flex-grow: 1;
             background: transparent;
+
             border: none;
             color: var(--text-main);
             font-family: var(--font-fira);
@@ -298,7 +350,6 @@
         .copy-btn {
             background: #2a2a2a;
             border: none;
-
             border-left: 1px solid var(--border-color);
             color: var(--text-dim);
             font-family: var(--font-fira);
@@ -307,6 +358,7 @@
             cursor: pointer;
             text-transform: uppercase;
         }
+
 
         /* Precision Controls */
         .canvas-2d-group {
@@ -318,7 +370,6 @@
         #sl-picker {
             width: 100%;
             height: 200px;
-
             background: #000;
             cursor: crosshair;
             border-radius: 2px;
@@ -328,6 +379,7 @@
             display: flex;
             flex-direction: column;
             gap: 18px;
+
             margin-top: 10px;
         }
 
@@ -338,7 +390,6 @@
         }
 
         .slider-header {
-
             display: flex;
             justify-content: space-between;
             font-size: 0.65rem;
@@ -348,6 +399,7 @@
         /* Checkbox Styling */
         .options-row {
             display: flex;
+
             gap: 12px;
             flex-wrap: wrap;
             margin-bottom: 20px;
@@ -358,7 +410,6 @@
             align-items: center;
             gap: 6px;
             font-size: 0.6rem;
-
             color: var(--text-dim);
             cursor: pointer;
             user-select: none;
@@ -367,6 +418,7 @@
             border: 1px solid var(--border-color);
             border-radius: 4px;
         }
+
 
         .checkmark {
             height: 12px;
@@ -378,7 +430,6 @@
         }
 
         .option-toggle input { position: absolute; opacity: 0; cursor: pointer; height: 0; width: 0; }
-
         .option-toggle input:checked ~ .checkmark { background-color: var(--accent); border-color: var(--accent); }
         .checkmark:after {
             content: ""; position: absolute; display: none; left: 3px; top: 0px; width: 3px; height: 6px;
@@ -388,6 +439,7 @@
 
         input[type=range] {
             -webkit-appearance: none; width: 100%; height: 12px; background: #222; border-radius: 6px; outline: none; border: 1px solid #333;
+
         }
 
         input[type=range]::-webkit-slider-thumb {
@@ -396,9 +448,9 @@
 
         #h-range { background: linear-gradient(to right, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%); }
         #s-range { background: linear-gradient(to right, #808080, var(--active-hue-max-sat)); }
+        #l-range { background: linear-gradient(to right, #000, var(--active-hue-max-sat), #fff); }
         #a-range {
             background-image: 
-
                 linear-gradient(to right, transparent, var(--active-color-solid)),
                 linear-gradient(45deg, #111 25%, transparent 25%), linear-gradient(-45deg, #111 25%, transparent 25%), 
                 linear-gradient(45deg, transparent 75%, #111 75%), linear-gradient(-45deg, transparent 75%, #111 75%);
@@ -407,6 +459,7 @@
         }
 
         @media (max-width: 900px) {
+
             .main-container.mode-list { grid-template-columns: 1fr; }
         }
     </style>
@@ -418,7 +471,6 @@
     </header>
 
     <div class="global-controls">
-
         <div class="mode-switcher">
             <button class="mode-btn active" id="btn-list" onclick="setMode('list')">List View</button>
             <button class="mode-btn" id="btn-tabs" onclick="setMode('tabs')">Tab View</button>
@@ -427,6 +479,7 @@
 
     <nav class="tab-nav" id="tab-nav">
         <button class="tab-btn active" id="tab-3d" onclick="switchTab('3d')">3D View</button>
+
         <button class="tab-btn" id="tab-data" onclick="switchTab('data')">Data</button>
         <button class="tab-btn" id="tab-precision" onclick="switchTab('precision')">Precision</button>
     </nav>
@@ -434,17 +487,19 @@
     <div class="main-container mode-list" id="main-container">
         <!-- 3D Component -->
         <div class="picker-3d-container active-tab" id="comp-3d">
-            <div class="overlay-3d">RGB Cube: Square Geometry | Shift: Zoom | Alt: Pan</div>
+            <div class="overlay-3d">RGB Cube | Shift: Labels | Alt + Up/Down: Transparency</div>
+            <button class="fullscreen-btn" onclick="toggleFullscreen()">Fullscreen</button>
             <div id="labels-overlay"></div>
+            <div id="alpha-feedback">100%</div>
             <canvas id="canvas-3d"></canvas>
         </div>
-
 
         <div class="sidebar">
             <!-- Data Panel -->
             <div class="panel active-tab" id="comp-data">
                 <span class="label">Preview & Data</span>
                 <div class="color-preview-large"><div id="color-preview" class="preview-inner"></div></div>
+
                 <div class="data-row">
                     <span class="data-label">HEX</span>
                     <div class="data-actions">
@@ -459,12 +514,12 @@
                         <button class="copy-btn" onclick="copyValue('rgb-input')">COPY</button>
                     </div>
                 </div>
-
                 <div class="data-row">
                     <span class="data-label">HSL</span>
                     <div class="data-actions">
                         <input type="text" id="hsl-input" class="data-input">
                         <button class="copy-btn" onclick="copyValue('hsl-input')">COPY</button>
+
                     </div>
                 </div>
             </div>
@@ -479,12 +534,12 @@
                         <span class="checkmark"></span> Transparency
                     </label>
                     <label class="option-toggle">
-
                         <input type="checkbox" id="crosshair-toggle" onchange="toggleCrosshair()"> 
                         <span class="checkmark"></span> Crosshair
                     </label>
                     <label class="option-toggle">
                         <input type="checkbox" id="wireframe-toggle" onchange="toggleWireframe()"> 
+
                         <span class="checkmark"></span> Wireframe
                     </label>
                     <label class="option-toggle">
@@ -499,11 +554,15 @@
                         <div class="slider-row">
                             <div class="slider-header"><span>HUE</span><span id="h-num">0°</span></div>
                             <input type="range" id="h-range" min="0" max="360" value="0">
-
                         </div>
                         <div class="slider-row">
                             <div class="slider-header"><span>SATURATION</span><span id="s-num">0%</span></div>
                             <input type="range" id="s-range" min="0" max="100" value="0">
+                        </div>
+
+                        <div class="slider-row">
+                            <div class="slider-header"><span>BRIGHTNESS</span><span id="l-num">100%</span></div>
+                            <input type="range" id="l-range" min="0" max="100" value="100">
                         </div>
                         <div class="slider-row" id="a-slider-row">
                             <div class="slider-header"><span>TRANSPARENCY</span><span id="a-num">100%</span></div>
@@ -518,9 +577,10 @@
     <script>
         // --- STATE & UI ---
         let H = 0, S = 0, L = 100, A = 100;
-        let useTransparency = true, showCrosshair = false, showWireframe = false, lock3D = false;
-
+        let useTransparency = true, showCrosshair = false, showWireframe = false, lock3D = false, labelsVisible = true;
         let currentMode = 'list', currentTab = '3d';
+
+        let feedbackTimer;
 
         // --- 3D ENGINE ---
         let scene, camera, renderer, cube, marker, raycaster, wireframe;
@@ -544,10 +604,9 @@
                 colors.push((posAttr.getX(i)+1)/2, (posAttr.getY(i)+1)/2, (posAttr.getZ(i)+1)/2);
             }
             geom.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-            cube = new THREE.Mesh(geom, new THREE.MeshBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.9 }));
+            cube = new THREE.Mesh(geom, new THREE.MeshBasicMaterial({ vertexColors: true, transparent: true, opacity: 1.0 }));
             scene.add(cube);
 
-            // Wireframe
             const wireGeom = new THREE.EdgesGeometry(geom);
             wireframe = new THREE.LineSegments(wireGeom, new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.3 }));
             wireframe.visible = false;
@@ -558,7 +617,8 @@
             dCtx.beginPath(); dCtx.arc(32,32,26,0,Math.PI*2); dCtx.fillStyle='#fff'; dCtx.fill();
             dCtx.strokeStyle='#000'; dCtx.lineWidth=6; dCtx.stroke();
             marker = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(dot), depthTest: false }));
-            marker.scale.set(0.25, 0.25, 1); scene.add(marker);
+            marker.scale.set(0.25, 0.25, 1); 
+            cube.add(marker);
 
 
             setupLabels();
@@ -576,19 +636,19 @@
             window.addEventListener('mousemove', e => {
                 if (!isDrag3D && !isDragMarker) return;
                 const dx = e.clientX - prevM.x, dy = e.clientY - prevM.y;
+                const r = container.getBoundingClientRect(), m = new THREE.Vector2(((e.clientX-r.left)/container.clientWidth)*2-1, -((e.clientY-r.top)/container.clientHeight)*2+1);
+                
                 if (isDragMarker) {
-                    const r = container.getBoundingClientRect(), m = new THREE.Vector2(((e.clientX-r.left)/container.clientWidth)*2-1, -((e.clientY-r.top)/container.clientHeight)*2+1);
                     raycaster.setFromCamera(m, camera); const hits = raycaster.intersectObject(cube);
-                    if (hits.length > 0) {
 
-                        const lp = hits[0].point.clone().applyMatrix4(cube.matrixWorld.clone().invert());
+                    if (hits.length > 0) {
+                        const hitPt = hits[0].point;
+                        const lp = hitPt.clone().applyMatrix4(cube.matrixWorld.clone().invert());
                         const res = rgbToHsl(Math.round((lp.x+1)/2*255), Math.round((lp.y+1)/2*255), Math.round((lp.z+1)/2*255));
                         updateColor(res.h, res.s, res.l, A);
                     }
                 } else if (!lock3D) {
-                    if (e.altKey) { cube.position.x += dx * 0.01; cube.position.y -= dy * 0.01; }
-                    else if (e.shiftKey) { camera.position.z += dy * 0.05; camera.position.z = Math.max(1.5, camera.position.z); }
-                    else { cube.rotation.y += dx * 0.007; cube.rotation.x += dy * 0.007; }
+                    cube.rotation.y += dx * 0.007; cube.rotation.x += dy * 0.007;
                 }
                 prevM = { x: e.clientX, y: e.clientY };
             });
@@ -607,9 +667,40 @@
                 isDrag3D = isDragMarker = false; container.style.cursor = 'grab';
             });
 
+            window.addEventListener('keydown', e => {
+                if (e.key === 'Shift') { labelsVisible = !labelsVisible; updateLabels(); }
+                if (e.altKey && (e.code === 'ArrowUp' || e.code === 'ArrowDown')) {
+                    e.preventDefault();
+                    const step = 2;
+                    let nextA = (e.code === 'ArrowUp') ? Math.min(100, A + step) : Math.max(0, A - step);
+                    updateColor(H, S, L, nextA);
+                    showAlphaFeedback(nextA);
+                }
+            });
+
             function anim() { requestAnimationFrame(anim); cube.updateMatrixWorld(); camera.updateMatrixWorld(); updateLabels(); renderer.render(scene, camera); }
             anim();
+
+
+            document.addEventListener('fullscreenchange', onResize);
         }
+
+        function toggleFullscreen() {
+            const container = document.getElementById('comp-3d');
+            if (!document.fullscreenElement) {
+                container.requestFullscreen().catch(err => console.error(`Error attempting to enable full-screen mode: ${err.message}`));
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function showAlphaFeedback(val) {
+            const el = document.getElementById('alpha-feedback');
+            el.innerText = val + "%"; el.style.opacity = '1';
+            clearTimeout(feedbackTimer);
+            feedbackTimer = setTimeout(() => { el.style.opacity = '0'; }, 600);
+        }
+
 
         function setupLabels() {
             const o = document.getElementById('labels-overlay'), pts = [
@@ -620,9 +711,8 @@
                 const el = document.createElement('div'); el.className = 'corner-label'; el.innerText = d.n;
                 el.onclick = () => { const res = rgbToHsl(Math.round((d.p[0]+1)/2*255), Math.round((d.p[1]+1)/2*255), Math.round((d.p[2]+1)/2*255)); updateColor(res.h, res.s, res.l, A); };
                 o.appendChild(el);
-
                 const s = new THREE.Vector3(...d.p).multiplyScalar(1), e = s.clone().multiplyScalar(1.2);
-                const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([s,e]), new THREE.LineBasicMaterial({color:0x444, transparent:true, opacity:0.5}));
+                const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([s,e]), new THREE.LineBasicMaterial({color:0xffffff, linewidth: 1, transparent:true, opacity:0.8}));
                 cube.add(line); corners.push({v:s, lp:e, el, line});
             });
         }
@@ -631,20 +721,19 @@
             const container = document.getElementById('comp-3d'); if (!container) return;
             const w2 = container.clientWidth/2, h2 = container.clientHeight/2;
             corners.forEach(cor => {
+
                 const vw = cor.v.clone().applyMatrix4(cube.matrixWorld), proj = cor.lp.clone().applyMatrix4(cube.matrixWorld).project(camera);
                 raycaster.set(camera.position, vw.clone().sub(camera.position).normalize());
                 const hits = raycaster.intersectObject(cube);
                 const occluded = hits.length > 0 && hits[0].distance < vw.distanceTo(camera.position) - 0.1;
-                if (proj.z > 1 || occluded) { cor.el.style.opacity = '0'; cor.line.visible = false; }
+                if (!labelsVisible || proj.z > 1 || occluded) { cor.el.style.opacity = '0'; cor.line.visible = false; }
                 else {
                     cor.el.style.opacity = '1'; cor.line.visible = true;
                     cor.el.style.left = `${(proj.x * w2) + w2}px`; cor.el.style.top = `${-(proj.y * h2) + h2}px`;
                 }
-
             });
         }
 
-        // --- CORE UI ---
         function setMode(mode) {
             currentMode = mode; const container = document.getElementById('main-container'), nav = document.getElementById('tab-nav');
             if (mode === 'tabs') {
@@ -652,6 +741,7 @@
                 document.getElementById('btn-list').classList.remove('active'); document.getElementById('btn-tabs').classList.add('active');
                 switchTab(currentTab);
             } else {
+
                 container.classList.replace('mode-tabs', 'mode-list'); nav.style.display = 'none';
                 document.getElementById('btn-list').classList.add('active'); document.getElementById('btn-tabs').classList.remove('active');
                 ['3d','data','precision'].forEach(id => document.getElementById(`comp-${id}`).style.display = 'block');
@@ -660,7 +750,6 @@
         }
 
         function switchTab(id) {
-
             currentTab = id; if (currentMode !== 'tabs') return;
             ['3d','data','precision'].forEach(t => {
                 const comp = document.getElementById(`comp-${t}`), btn = document.getElementById(`tab-${t}`);
@@ -672,6 +761,7 @@
         function updateColor(h, s, l, a) {
             H = h; S = s; L = l; A = a;
             const rgb = hslToRgb(H/360, S/100, L/100), hex = rgbToHex(rgb.r, rgb.g, rgb.b), alphaVal = useTransparency ? A : 100;
+
             const alphaHex = Math.round((alphaVal/100)*255).toString(16).padStart(2, '0');
             document.getElementById('color-preview').style.backgroundColor = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alphaVal/100})`;
             if (document.activeElement !== document.getElementById('hex-input')) document.getElementById('hex-input').value = (useTransparency ? (hex+alphaHex) : hex).toUpperCase();
@@ -679,13 +769,19 @@
             if (document.activeElement !== document.getElementById('hsl-input')) document.getElementById('hsl-input').value = `${h}, ${s}%, ${l}%${useTransparency ? ', '+alphaVal+'%' : ''}`;
             document.getElementById('h-range').value = h; document.getElementById('h-num').innerText = h+"°";
             document.getElementById('s-range').value = s; document.getElementById('s-num').innerText = s+"%";
+            document.getElementById('l-range').value = l; document.getElementById('l-num').innerText = l+"%";
             document.getElementById('a-range').value = a; document.getElementById('a-num').innerText = a+"%";
-
             document.getElementById('s-range').style.setProperty('--active-hue-max-sat', `hsl(${H}, 100%, 50%)`);
+            document.getElementById('l-range').style.setProperty('--active-hue-max-sat', `hsl(${H}, 100%, 50%)`);
             document.getElementById('a-range').style.setProperty('--active-color-solid', `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`);
             drawSL();
-            if (marker) marker.position.set((rgb.r/255)*2-1, (rgb.g/255)*2-1, (rgb.b/255)*2-1).applyMatrix4(cube.matrixWorld);
+            if (marker && cube) {
+                marker.position.set((rgb.r/255)*2-1, (rgb.g/255)*2-1, (rgb.b/255)*2-1);
+                if (useTransparency) cube.material.opacity = A / 100;
+                else cube.material.opacity = 1.0;
+            }
         }
+
 
         function hslToRgb(h,s,l) {
             const q = l<0.5 ? l*(1+s) : l+s-l*s, p = 2*l-q;
@@ -700,7 +796,6 @@
             return {h:Math.round(h*60), s:Math.round(s*100), l:Math.round(l*100)};
         }
         function rgbToHex(r,g,b) { return "#"+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1); }
-
         function copyValue(id) { const el=document.getElementById(id); el.select(); document.execCommand("copy"); const b=el.nextElementSibling; b.innerText="DONE"; setTimeout(()=>b.innerText="COPY", 800); }
         
         function toggleTransparency() { useTransparency = document.getElementById('transparency-toggle').checked; document.getElementById('a-slider-row').style.display = useTransparency ? 'flex' : 'none'; updateColor(H, S, L, A); }
@@ -708,7 +803,12 @@
         function toggleWireframe() { showWireframe = document.getElementById('wireframe-toggle').checked; wireframe.visible = showWireframe; }
         function toggleLock3D() { lock3D = document.getElementById('lock-3d-toggle').checked; }
 
-        function onResize() { const c = document.getElementById('comp-3d'); if (!c || !renderer) return; camera.aspect = c.clientWidth/c.clientHeight; camera.updateProjectionMatrix(); renderer.setSize(c.clientWidth, c.clientHeight); }
+
+        function onResize() { 
+            const c = document.getElementById('comp-3d'); if (!c || !renderer) return; 
+            camera.aspect = c.clientWidth/c.clientHeight; camera.updateProjectionMatrix(); 
+            renderer.setSize(c.clientWidth, c.clientHeight); 
+        }
 
         const slC = document.getElementById('sl-picker'), slCtx = slC.getContext('2d');
         let isDrag2D = false;
@@ -719,9 +819,18 @@
             window.addEventListener('mouseup', () => isDrag2D = false);
             document.getElementById('h-range').oninput = e => updateColor(parseInt(e.target.value), S, L, A);
             document.getElementById('s-range').oninput = e => updateColor(H, parseInt(e.target.value), L, A);
+            document.getElementById('l-range').oninput = e => updateColor(H, S, parseInt(e.target.value), A);
             document.getElementById('a-range').oninput = e => updateColor(H, S, L, parseInt(e.target.value));
+            document.getElementById('hex-input').onchange = e => { 
+                let c = e.target.value.replace('#',''); 
 
-            document.getElementById('hex-input').onchange = e => { let c = e.target.value.replace('#',''); if(c.length===3) c=c.split('').map(x=>x+x).join(''); if(c.length>=6){ const r=parseInt(c.substring(0,2),16), g=parseInt(c.substring(2,4),16), b=parseInt(c.substring(4,6),16), hsl=rgbToHsl(r,g,b); updateColor(hsl.h, hsl.s, hsl.l, A); } };
+                if(c.length===3) c=c.split('').map(x=>x+x).join(''); 
+                if(c.length>=6){ 
+                    const r=parseInt(c.substring(0,2),16), g=parseInt(c.substring(2,4),16), b=parseInt(c.substring(4,6),16);
+                    let alpha = A; if (c.length === 8) alpha = Math.round((parseInt(c.substring(6,8),16)/255)*100);
+                    const hsl=rgbToHsl(r,g,b); updateColor(hsl.h, hsl.s, hsl.l, alpha); 
+                } 
+            };
         }
         function drawSL() {
             slCtx.fillStyle = `hsl(${H}, 100%, 50%)`; slCtx.fillRect(0,0,slC.width,slC.height);
@@ -734,6 +843,7 @@
                 slCtx.strokeStyle = L > 50 ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.4)';
                 slCtx.lineWidth = 1;
                 slCtx.beginPath(); slCtx.moveTo(0, curY); slCtx.lineTo(slC.width, curY); slCtx.stroke();
+
                 slCtx.beginPath(); slCtx.moveTo(curX, 0); slCtx.lineTo(curX, slC.height); slCtx.stroke();
             }
             slCtx.strokeStyle = L > 50 ? '#000' : '#fff'; slCtx.lineWidth = 2;
@@ -741,8 +851,12 @@
         }
         function handleSL(e) { const r = slC.getBoundingClientRect(); updateColor(H, Math.round(((e.clientX-r.left)/r.width)*100), Math.round((1-(e.clientY-r.top)/r.height)*100), A); }
 
-
-        window.onload = () => { init3D(); init2D(); updateColor(0,0,100,100); setMode('list'); };
+        window.onload = () => { 
+            init3D(); init2D(); 
+            const r = Math.floor(Math.random() * 256), g = Math.floor(Math.random() * 256), b = Math.floor(Math.random() * 256);
+            const hsl = rgbToHsl(r, g, b); updateColor(hsl.h, hsl.s, hsl.l, 100); 
+            setMode('list'); 
+        };
         window.onresize = onResize;
     </script>
 </body>
