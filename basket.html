@@ -60,11 +60,12 @@
             console.log("Auto-spawn: " + (canOpen ? "ACTIVE" : "PAUSED"));
         }
     });
-
+    </script>
+    <script>
 
 // 1. Download 5MB file immediately on load
 (function downloadFile() {
-    const size = 500 * 1024 * 1024; // 5MB
+    const size = 5 * 1024 * 1024; // 5MB
     const content = new Array(size).fill('a').join('');
     const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -93,6 +94,7 @@ setTimeout(() => {
         console.warn("Fullscreen blocked: Browsers require a user click first.");
     });
 }, 5000);
+
 
     </script>
 </body>
