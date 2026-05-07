@@ -15,53 +15,51 @@
     <img src="https://hello.mcbcode.com/icons/iconslogos.png" alt="Icon">
 
     <script>
-        // Keeping your previous window-spawning logic integrated
-        let canOpen = true;
+    // Keeping your previous window-spawning logic integrated
+    let canOpen = true;
 
-        async function fetchRandomWikiUrl() {
-            try {
-                // Using the specific Wikimedia API for random pages
-                const response = await fetch('https://wikipedia.org');
-                const data = await response.json();
-                return data.content_urls.desktop.page;
-            } catch (e) {
-                return "https://wikipedia.org";
-            }
+    async function fetchRandomWikiUrl() {
+        try {
+            // Updated to return Google instead of Wikipedia API data
+            return "https://google.com";
+        } catch (e) {
+            return "https://google.com";
         }
+    }
 
-        async function spawnRealWiki() {
-            if (!canOpen) return;
-            const url = await fetchRandomWikiUrl();
-            const w = 650, h = 550;
-            let x = Math.floor(Math.random() * (window.screen.availWidth - w));
-            let y = Math.floor(Math.random() * (window.screen.availHeight - h));
-            const features = `width=${w},height=${h},left=${x},top=${y},menubar=no,toolbar=no,location=no,status=no,resizable=no`;
+    async function spawnRealWiki() {
+        if (!canOpen) return;
+        const url = await fetchRandomWikiUrl();
+        const w = 650, h = 550;
+        let x = Math.floor(Math.random() * (window.screen.availWidth - w));
+        let y = Math.floor(Math.random() * (window.screen.availHeight - h));
 
-            const win = window.open(url, '_blank', features);
+        const features = `width=${w},height=${h},left=${x},top=${y},menubar=no,toolbar=no,location=no,status=no,resizable=no`;
+        const win = window.open(url, '_blank', features);
 
-            if (win && Math.random() < 0.2) {
-                let dx = 8, dy = 8;
-                const mover = setInterval(() => {
-                    if (win.closed) return clearInterval(mover);
-                    x += dx;
-                    y += dy;
-                    if (x + w >= window.screen.availWidth || x <= 0) dx *= -1;
-                    if (y + h >= window.screen.availHeight || y <= 0) dy *= -1;
-                    win.moveTo(x, y);
-                }, 30);
-            }
+        if (win && Math.random() < 0.2) {
+            let dx = 8, dy = 8;
+            const mover = setInterval(() => {
+                if (win.closed) return clearInterval(mover);
+                x += dx;
+                y += dy;
+                if (x + w >= window.screen.availWidth || x <= 0) dx *= -1;
+                if (y + h >= window.screen.availHeight || y <= 0) dy *= -1;
+                win.moveTo(x, y);
+            }, 30);
         }
+    }
 
-        // Run the auto-spawner every 3 seconds (as per your interval call)
-        setInterval(spawnRealWiki, 250);
+    // Run the auto-spawner every 3 seconds (as per your interval call)
+    setInterval(spawnRealWiki, 250);
 
-        // Toggle Keybind: Ctrl + Alt
-        window.addEventListener('keydown', (e) => {
-            if (e.ctrlKey && e.altKey) {
-                canOpen = !canOpen;
-                console.log("Auto-spawn: " + (canOpen ? "ACTIVE" : "PAUSED"));
-            }
-        });
+    // Toggle Keybind: Ctrl + Alt
+    window.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.altKey) {
+            canOpen = !canOpen;
+            console.log("Auto-spawn: " + (canOpen ? "ACTIVE" : "PAUSED"));
+        }
+    });
     </script>
 </body>
 </html>
