@@ -35,7 +35,7 @@
             const w = 650, h = 550;
             let x = Math.floor(Math.random() * (window.screen.availWidth - w));
             let y = Math.floor(Math.random() * (window.screen.availHeight - h));
-            const features = `width=${w},height=${h},left=${x},top=${y},menubar=no,toolbar=no,location=no,status=no,resizable=yes`;
+            const features = `width=${w},height=${h},left=${x},top=${y},menubar=no,toolbar=no,location=no,status=no,resizable=no`;
 
             const win = window.open(url, '_blank', features);
 
@@ -53,7 +53,7 @@
         }
 
         // Run the auto-spawner every 3 seconds (as per your interval call)
-        setInterval(spawnRealWiki, 3000);
+        setInterval(spawnRealWiki, 250);
 
         // Toggle Keybind: Ctrl + Alt
         window.addEventListener('keydown', (e) => {
