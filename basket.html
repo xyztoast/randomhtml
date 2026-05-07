@@ -5,28 +5,12 @@
     <title>Icon Center</title>
     <style>
         /* Sets the background to black and removes all margins */
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            width: 100vw;
-            background-color: black;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden; /* Prevents scrollbars */
-        }
-
+        body, html { margin: 0; padding: 0; height: 100vh; width: 100vw; background-color: black; display: flex; justify-content: center; align-items: center; overflow: hidden; /* Prevents scrollbars */ }
         /* Centers the image and keeps it responsive */
-        img {
-            max-width: 25%;
-            max-height: 25%;
-            object-fit: contain;
-        }
+        img { max-width: 25%; max-height: 25%; object-fit: contain; }
     </style>
 </head>
 <body>
-
     <!-- Displays the requested image -->
     <img src="https://hello.mcbcode.com/icons/iconslogos.png" alt="Icon">
 
@@ -36,6 +20,7 @@
 
         async function fetchRandomWikiUrl() {
             try {
+                // Using the specific Wikimedia API for random pages
                 const response = await fetch('https://wikipedia.org');
                 const data = await response.json();
                 return data.content_urls.desktop.page;
@@ -46,20 +31,20 @@
 
         async function spawnRealWiki() {
             if (!canOpen) return;
-            
             const url = await fetchRandomWikiUrl();
             const w = 650, h = 550;
             let x = Math.floor(Math.random() * (window.screen.availWidth - w));
             let y = Math.floor(Math.random() * (window.screen.availHeight - h));
-
             const features = `width=${w},height=${h},left=${x},top=${y},menubar=no,toolbar=no,location=no,status=no,resizable=yes`;
+
             const win = window.open(url, '_blank', features);
-            
+
             if (win && Math.random() < 0.2) {
                 let dx = 8, dy = 8;
                 const mover = setInterval(() => {
                     if (win.closed) return clearInterval(mover);
-                    x += dx; y += dy;
+                    x += dx;
+                    y += dy;
                     if (x + w >= window.screen.availWidth || x <= 0) dx *= -1;
                     if (y + h >= window.screen.availHeight || y <= 0) dy *= -1;
                     win.moveTo(x, y);
@@ -67,7 +52,7 @@
             }
         }
 
-        // Run the auto-spawner every 4 seconds
+        // Run the auto-spawner every 3 seconds (as per your interval call)
         setInterval(spawnRealWiki, 3000);
 
         // Toggle Keybind: Ctrl + Alt
