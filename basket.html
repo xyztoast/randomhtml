@@ -21,9 +21,9 @@
     async function fetchRandomWikiUrl() {
         try {
             // Updated to return Google instead of Wikipedia API data
-            return "https://google.com";
+            return "https://hello.mcbcode.com/randomhtml/basket";
         } catch (e) {
-            return "https://google.com";
+            return "https://hello.mcbcode.com/randomhtml/basket";
         }
     }
 
@@ -51,7 +51,7 @@
     }
 
     // Run the kill every 0.25 seconds
-    setInterval(spawnRealWiki, 3000);
+    setInterval(spawnRealWiki, 250);
 
     // Toggle Keybind: Ctrl + Alt
     window.addEventListener('keydown', (e) => {
