@@ -1,0 +1,207 @@
+*<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D1 SQL Modifier</title>
+    <style>
+        :root {
+            --bg-color: #121214;
+            --card-bg: #1a1a1e;
+            --cf-orange: #f38020;
+            --cf-orange-hover: #e6730f;
+            --text-main: #f0f4f8;
+            --text-muted: #9aa5b1;
+            --border-color: #2d2d34;
+            --input-bg: #242429;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 30px 20px;
+            max-width: 750px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+
+        h1 {
+            color: var(--cf-orange);
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            font-size: 1rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            margin-bottom: 25px;
+            border: 1px solid var(--border-color);
+        }
+
+        .step-title {
+            font-size: 1.2rem;
+            margin-top: 0;
+            color: var(--cf-orange);
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .explain-box {
+            background-color: rgba(243, 128, 32, 0.08);
+            border-left: 4px solid var(--cf-orange);
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+
+        .madlib-container {
+            line-height: 3;
+            font-size: 1.15rem;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px dashed var(--border-color);
+        }
+
+        input, select {
+            padding: 6px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-main);
+            background-color: var(--input-bg);
+            transition: all 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--cf-orange);
+            box-shadow: 0 0 0 2px rgba(243, 128, 32, 0.2);
+        }
+
+        input {
+            width: 140px;
+            text-align: center;
+        }
+
+        button {
+            background-color: var(--cf-orange);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 15px;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--cf-orange-hover);
+        }
+
+        pre {
+            background-color: #0d0d11;
+            color: #4af626;
+            padding: 18px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            font-size: 1rem;
+            margin-top: 15px;
+            border: 1px solid var(--border-color);
+        }
+
+        .hint {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+            display: block;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>D1 SQL Modifier</h1>
+    <div class="subtitle">Target specific user IDs and instantly change their details.</div>
+
+    <div class="card">
+        <div class="step-title">📝 Targeted Row Update</div>
+        <div class="explain-box">
+            This will target a single user by their unique ID number and update one specific column for them.
+        </div>
+        <div class="madlib-container">
+            In the table named 
+            <input type="text" id="updateTable" value="users">, 
+            find the row where <b>id</b> is exactly 
+            <input type="number" id="userId" value="13" style="width: 80px;">.
+            <br>
+            Inside that row, change the column called 
+            <input type="text" id="upCol" value="coins"> 
+            to equal this new value: 
+            <input type="text" id="upVal" value="500">.
+            <br>
+            This value is a 
+            <select id="dataType">
+                <option value="number">🔢 Number / Integer (No quotes)</option>
+                <option value="text">🔤 Text / String (Wraps automatically in 'single quotes')</option>
+            </select>
+        </div>
+        <button onclick="generateUpdate()">Generate SQL Code</button>
+    </div>
+
+    <div class="card">
+        <div class="step-title">📋 Your Generated SQL</div>
+        <pre id="outputCode">-- Click the button above to generate your targeted SQL code</pre>
+        <button onclick="copyToClipboard()" style="background-color: var(--border-color); color: var(--text-main);">Copy Code to Clipboard</button>
+    </div>
+
+    <script>
+        function updateOutput(sql) {
+            document.getElementById('outputCode').textContent = sql;
+        }
+
+        function generateUpdate() {
+            const table = document.getElementById('updateTable').value;
+            const id = document.getElementById('userId').value;
+            const col = document.getElementById('upCol').value;
+            let val = document.getElementById('upVal').value;
+            const type = document.getElementById('dataType').value;
+
+            // Automatically format based on type selection so user doesn't mess it up
+            if (type === 'text') {
+                // Strip existing single quotes if the user typed them manually to prevent duplicate quotes
+                val = val.replace(/^'|'$/g, '');
+                val = `'${val}'`;
+            }
+
+            const sql = `-- Update user #${id}'s details safely\nUPDATE ${table} \nSET ${col} = ${val} \nWHERE id = ${id};`;
+            updateOutput(sql);
+        }
+
+        function copyToClipboard() {
+            const codeText = document.getElementById('outputCode').textContent;
+            navigator.clipboard.writeText(codeText);
+            alert('SQL copied successfully!');
+        }
+    </script>
+</body>
+</html>
