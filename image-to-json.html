@@ -1,0 +1,1142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>image → json</title>
+  <style>
+    :root {
+      --bg: #0b0d0f;
+      --panel: #111416;
+      --panel-2: #161a1d;
+      --panel-3: #1b2024;
+      --border: #292f34;
+      --border-soft: #20252a;
+      --text: #eef2f4;
+      --muted: #89939b;
+      --muted-2: #626c74;
+      --accent: #05ee93;
+      --accent-soft: rgba(5, 238, 147, 0.12);
+      --danger: #ff6577;
+      --shadow: 0 18px 55px rgba(0, 0, 0, 0.34);
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+      background: var(--bg);
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 75% -10%, rgba(5, 238, 147, 0.06), transparent 30rem),
+        var(--bg);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app-shell {
+      width: min(1500px, calc(100% - 36px));
+      margin: 0 auto;
+      padding: 28px 0 42px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      color: var(--accent);
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .brand-text {
+      min-width: 0;
+    }
+
+    .brand-title {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-subtitle {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 2px;
+      white-space: nowrap;
+    }
+
+    .status {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 360px minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    .panel {
+      min-width: 0;
+      background: rgba(17, 20, 22, 0.92);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .sidebar {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-height: 680px;
+    }
+
+    .section {
+      padding: 14px;
+      background: var(--panel-2);
+      border: 1px solid var(--border-soft);
+      border-radius: 10px;
+    }
+
+    .section-title {
+      margin: 0 0 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #c9d0d5;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .drop-zone {
+      min-height: 190px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 20px;
+      border: 1px dashed #394148;
+      border-radius: 10px;
+      background: #101315;
+      transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+    }
+
+    .drop-zone.dragover {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      transform: translateY(-1px);
+    }
+
+    .drop-icon {
+      width: 42px;
+      height: 42px;
+      margin: 0 auto 12px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--accent);
+      background: #15191c;
+      font-weight: 800;
+    }
+
+    .drop-title {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .drop-note {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .btn {
+      min-height: 38px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 0 13px;
+      background: #171b1e;
+      color: var(--text);
+      font-weight: 650;
+      font-size: 12px;
+    }
+
+    .btn:hover {
+      border-color: #3d464d;
+      background: #1b2024;
+    }
+
+    .btn.primary {
+      border-color: transparent;
+      background: var(--accent);
+      color: #05150f;
+    }
+
+    .btn.primary:hover {
+      background: #12f79f;
+    }
+
+    .btn.danger {
+      color: #ff9ba7;
+    }
+
+    .field {
+      margin-top: 10px;
+    }
+
+    .field:first-of-type {
+      margin-top: 0;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 650;
+    }
+
+    .control {
+      width: 100%;
+      min-height: 36px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #0f1214;
+      color: var(--text);
+      padding: 0 10px;
+      outline: none;
+    }
+
+    .control:focus {
+      border-color: rgba(5, 238, 147, 0.55);
+      box-shadow: 0 0 0 3px rgba(5, 238, 147, 0.08);
+    }
+
+    .range-line {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 62px;
+      gap: 9px;
+      align-items: center;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    .number-control {
+      text-align: center;
+      padding: 0 5px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .stat {
+      padding: 11px;
+      background: #101315;
+      border: 1px solid var(--border-soft);
+      border-radius: 8px;
+    }
+
+    .stat-label {
+      color: var(--muted-2);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    .stat-value {
+      margin-top: 5px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #dce2e6;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .hint {
+      color: var(--muted-2);
+      font-size: 11px;
+      line-height: 1.45;
+      margin-top: 10px;
+    }
+
+    .main {
+      min-width: 0;
+      display: grid;
+      grid-template-rows: minmax(390px, 1fr) minmax(330px, 0.9fr);
+      gap: 16px;
+    }
+
+    .preview-panel,
+    .output-panel {
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .panel-head {
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 15px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+
+    .panel-head-left {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+    }
+
+    .panel-name {
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .panel-tag {
+      color: var(--muted-2);
+      font-size: 11px;
+    }
+
+    .preview-wrap {
+      position: relative;
+      height: calc(100% - 50px);
+      min-height: 340px;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      overflow: auto;
+      background-color: #0e1113;
+      background-image:
+        linear-gradient(45deg, #111517 25%, transparent 25%),
+        linear-gradient(-45deg, #111517 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #111517 75%),
+        linear-gradient(-45deg, transparent 75%, #111517 75%);
+      background-size: 22px 22px;
+      background-position: 0 0, 0 11px, 11px -11px, -11px 0;
+    }
+
+    .empty-preview {
+      color: var(--muted-2);
+      text-align: center;
+      font-size: 12px;
+      line-height: 1.55;
+      max-width: 240px;
+    }
+
+    .canvas-frame {
+      display: none;
+      max-width: 100%;
+      max-height: 100%;
+      border: 1px solid #363e44;
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.42);
+      image-rendering: pixelated;
+      background: transparent;
+    }
+
+    .output {
+      height: calc(100% - 50px);
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .code {
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      resize: none;
+      border: 0;
+      outline: 0;
+      padding: 16px;
+      background: #0d1012;
+      color: #cdd4d9;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 11px;
+      line-height: 1.55;
+      tab-size: 2;
+    }
+
+    .output-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 9px 12px;
+      border-top: 1px solid var(--border-soft);
+      background: #101315;
+    }
+
+    .output-meta {
+      color: var(--muted-2);
+      font-size: 11px;
+      min-width: 0;
+    }
+
+    .footer-buttons {
+      display: flex;
+      gap: 7px;
+      flex: 0 0 auto;
+    }
+
+    .mini-btn {
+      min-height: 32px;
+      padding: 0 10px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: #171b1e;
+      color: #d4dade;
+      font-size: 11px;
+      font-weight: 650;
+    }
+
+    .mini-btn:hover {
+      border-color: #3d464d;
+      background: #1c2226;
+    }
+
+    .mini-btn.primary {
+      border-color: transparent;
+      background: var(--accent);
+      color: #061710;
+    }
+
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      padding: 10px 13px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: #15191c;
+      color: #e8edef;
+      box-shadow: var(--shadow);
+      font-size: 12px;
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 1020px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        min-height: auto;
+      }
+
+      .main {
+        grid-template-rows: minmax(360px, 1fr) minmax(360px, 0.9fr);
+      }
+    }
+
+    @media (max-width: 650px) {
+      .app-shell {
+        width: min(100% - 20px, 1500px);
+        padding-top: 15px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+      }
+
+      .status {
+        display: none;
+      }
+
+      .sidebar {
+        padding: 10px;
+      }
+
+      .section {
+        padding: 12px;
+      }
+
+      .stats {
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+
+      .main {
+        grid-template-rows: 360px 390px;
+      }
+
+      .preview-wrap {
+        padding: 14px;
+      }
+
+      .output-footer {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .footer-buttons {
+        width: 100%;
+      }
+
+      .mini-btn {
+        flex: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">&lt;/&gt;</div>
+        <div class="brand-text">
+          <div class="brand-title">image → json</div>
+          <div class="brand-subtitle">convert images into color matrices</div>
+        </div>
+      </div>
+      <div class="status" id="statusText">ready for an image</div>
+    </header>
+
+    <div class="workspace">
+      <aside class="panel sidebar">
+        <section class="section">
+          <h2 class="section-title">input</h2>
+
+          <div class="drop-zone" id="dropZone">
+            <div>
+              <div class="drop-icon">+</div>
+              <div class="drop-title">drop an image here</div>
+              <div class="drop-note">png, jpg, jpeg, webp, gif and other browser-supported formats</div>
+
+              <div class="button-row">
+                <button class="btn primary" id="chooseBtn" type="button">choose image</button>
+                <button class="btn" id="pasteBtn" type="button">paste</button>
+              </div>
+            </div>
+          </div>
+
+          <input id="fileInput" type="file" accept="image/*" hidden>
+        </section>
+
+        <section class="section">
+          <h2 class="section-title">conversion</h2>
+
+          <div class="field">
+            <label for="mode">resolution mode</label>
+            <select class="control" id="mode">
+              <option value="original">use image resolution</option>
+              <option value="custom">custom resolution</option>
+            </select>
+          </div>
+
+          <div class="field" id="widthField" style="display:none;">
+            <label for="widthRange">width</label>
+            <div class="range-line">
+              <input id="widthRange" type="range" min="1" max="256" value="16">
+              <input id="widthNumber" class="control number-control" type="number" min="1" max="256" value="16">
+            </div>
+          </div>
+
+          <div class="field" id="heightField" style="display:none;">
+            <label for="heightRange">height</label>
+            <div class="range-line">
+              <input id="heightRange" type="range" min="1" max="256" value="16">
+              <input id="heightNumber" class="control number-control" type="number" min="1" max="256" value="16">
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="format">json style</label>
+            <select class="control" id="format">
+              <option value="nested-braces">nested braces</option>
+              <option value="json-array">standard json array</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="alpha">transparent pixels</label>
+            <select class="control" id="alpha">
+              <option value="transparent">keep as transparent</option>
+              <option value="black">use #000000</option>
+              <option value="white">use #ffffff</option>
+            </select>
+          </div>
+
+          <div class="hint">
+            custom resolution is useful for turning a normal image into a low-res / pixel-art style matrix.
+          </div>
+        </section>
+
+        <section class="section">
+          <h2 class="section-title">image info</h2>
+
+          <div class="stats">
+            <div class="stat">
+              <div class="stat-label">source</div>
+              <div class="stat-value" id="sourceSize">—</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">output</div>
+              <div class="stat-value" id="outputSize">—</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">cells</div>
+              <div class="stat-value" id="cellCount">—</div>
+            </div>
+          </div>
+        </section>
+
+        <div style="margin-top:auto;display:flex;gap:8px;">
+          <button class="btn" id="clearBtn" type="button" style="flex:1;">clear</button>
+          <button class="btn primary" id="convertBtn" type="button" style="flex:1;">convert</button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <section class="panel preview-panel">
+          <div class="panel-head">
+            <div class="panel-head-left">
+              <span class="panel-name">preview</span>
+              <span class="panel-tag" id="previewTag">no image</span>
+            </div>
+            <button class="mini-btn" id="checkerBtn" type="button">toggle checker</button>
+          </div>
+
+          <div class="preview-wrap" id="previewWrap">
+            <div class="empty-preview" id="emptyPreview">
+              upload an image to see its converted pixel grid here.
+            </div>
+            <canvas class="canvas-frame" id="previewCanvas"></canvas>
+          </div>
+        </section>
+
+        <section class="panel output-panel">
+          <div class="panel-head">
+            <div class="panel-head-left">
+              <span class="panel-name">output</span>
+              <span class="panel-tag" id="outputTag">nothing generated</span>
+            </div>
+            <div class="footer-buttons">
+              <button class="mini-btn" id="downloadBtn" type="button">download .json</button>
+              <button class="mini-btn primary" id="copyBtn" type="button">copy</button>
+            </div>
+          </div>
+
+          <div class="output">
+            <textarea class="code" id="output" spellcheck="false" readonly placeholder="your color matrix will appear here..."></textarea>
+
+            <div class="output-footer">
+              <div class="output-meta" id="outputMeta">output is generated entirely in your browser</div>
+              <div class="footer-buttons">
+                <button class="mini-btn" id="selectBtn" type="button">select all</button>
+                <button class="mini-btn" id="generateBtn" type="button">regenerate</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const els = {
+      dropZone: document.getElementById("dropZone"),
+      fileInput: document.getElementById("fileInput"),
+      chooseBtn: document.getElementById("chooseBtn"),
+      pasteBtn: document.getElementById("pasteBtn"),
+      mode: document.getElementById("mode"),
+      widthField: document.getElementById("widthField"),
+      heightField: document.getElementById("heightField"),
+      widthRange: document.getElementById("widthRange"),
+      heightRange: document.getElementById("heightRange"),
+      widthNumber: document.getElementById("widthNumber"),
+      heightNumber: document.getElementById("heightNumber"),
+      format: document.getElementById("format"),
+      alpha: document.getElementById("alpha"),
+      convertBtn: document.getElementById("convertBtn"),
+      clearBtn: document.getElementById("clearBtn"),
+      checkerBtn: document.getElementById("checkerBtn"),
+      previewWrap: document.getElementById("previewWrap"),
+      emptyPreview: document.getElementById("emptyPreview"),
+      previewCanvas: document.getElementById("previewCanvas"),
+      output: document.getElementById("output"),
+      copyBtn: document.getElementById("copyBtn"),
+      downloadBtn: document.getElementById("downloadBtn"),
+      selectBtn: document.getElementById("selectBtn"),
+      generateBtn: document.getElementById("generateBtn"),
+      sourceSize: document.getElementById("sourceSize"),
+      outputSize: document.getElementById("outputSize"),
+      cellCount: document.getElementById("cellCount"),
+      statusText: document.getElementById("statusText"),
+      previewTag: document.getElementById("previewTag"),
+      outputTag: document.getElementById("outputTag"),
+      outputMeta: document.getElementById("outputMeta"),
+      toast: document.getElementById("toast")
+    };
+
+    let sourceImage = null;
+    let sourceName = "image";
+
+    function showToast(message) {
+      els.toast.textContent = message;
+      els.toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => els.toast.classList.remove("show"), 1700);
+    }
+
+    function clamp(value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    }
+
+    function syncRangeNumber(range, number) {
+      const value = clamp(parseInt(number.value || range.value, 10), Number(range.min), Number(range.max));
+      range.value = value;
+      number.value = value;
+      return value;
+    }
+
+    function getDimensions() {
+      if (!sourceImage) return { width: 0, height: 0 };
+
+      if (els.mode.value === "custom") {
+        return {
+          width: clamp(parseInt(els.widthNumber.value || 16, 10), 1, 256),
+          height: clamp(parseInt(els.heightNumber.value || 16, 10), 1, 256)
+        };
+      }
+
+      return {
+        width: sourceImage.naturalWidth,
+        height: sourceImage.naturalHeight
+      };
+    }
+
+    function updateCustomResolutionVisibility() {
+      const custom = els.mode.value === "custom";
+      els.widthField.style.display = custom ? "" : "none";
+      els.heightField.style.display = custom ? "" : "none";
+
+      if (custom && sourceImage) {
+        els.widthRange.value = clamp(sourceImage.naturalWidth, 1, 256);
+        els.heightRange.value = clamp(sourceImage.naturalHeight, 1, 256);
+        els.widthNumber.value = els.widthRange.value;
+        els.heightNumber.value = els.heightRange.value;
+      }
+    }
+
+    function rgbToHex(r, g, b) {
+      return "#" + [r, g, b]
+        .map(value => value.toString(16).padStart(2, "0"))
+        .join("");
+    }
+
+    function formatMatrix(matrix) {
+      const style = els.format.value;
+
+      if (style === "json-array") {
+        return JSON.stringify(matrix, null, 2);
+      }
+
+      const rows = matrix.map(row => {
+        return "  {" + row.map(color => `"${color}"`).join(", ") + "}";
+      });
+
+      return "{\n" + rows.map((row, index) => {
+        return index === rows.length - 1 ? row : row + ",";
+      }).join("\n") + "\n}";
+    }
+
+    function convert() {
+      if (!sourceImage) {
+        showToast("upload an image first");
+        return;
+      }
+
+      const { width, height } = getDimensions();
+      if (!width || !height) return;
+
+      const temp = document.createElement("canvas");
+      temp.width = width;
+      temp.height = height;
+
+      const ctx = temp.getContext("2d", { willReadFrequently: true });
+      ctx.imageSmoothingEnabled = false;
+      ctx.clearRect(0, 0, width, height);
+
+      // Cover the complete output canvas while preserving the source image's aspect ratio.
+      // For the pixel-art use case, a slightly stretched grid is often more useful than
+      // cropping away parts of the image, so custom dimensions resize the entire image.
+      ctx.drawImage(sourceImage, 0, 0, width, height);
+
+      const pixels = ctx.getImageData(0, 0, width, height).data;
+      const matrix = [];
+
+      for (let y = 0; y < height; y++) {
+        const row = [];
+
+        for (let x = 0; x < width; x++) {
+          const i = (y * width + x) * 4;
+          const r = pixels[i];
+          const g = pixels[i + 1];
+          const b = pixels[i + 2];
+          const a = pixels[i + 3];
+
+          let color;
+          if (a < 128) {
+            if (els.alpha.value === "black") color = "#000000";
+            else if (els.alpha.value === "white") color = "#ffffff";
+            else color = "transparent";
+          } else {
+            color = rgbToHex(r, g, b);
+          }
+
+          row.push(color);
+        }
+
+        matrix.push(row);
+      }
+
+      renderPreview(temp);
+      els.output.value = formatMatrix(matrix);
+
+      els.outputSize.textContent = `${width}×${height}`;
+      els.cellCount.textContent = (width * height).toLocaleString();
+      els.previewTag.textContent = `${width}×${height}`;
+      els.outputTag.textContent = `${matrix.length} rows`;
+      els.outputMeta.textContent = `${(els.output.value.length / 1024).toFixed(1)} kb · ${width * height} cells`;
+      els.statusText.textContent = "converted locally in your browser";
+    }
+
+    function renderPreview(sourceCanvas) {
+      const canvas = els.previewCanvas;
+      const ctx = canvas.getContext("2d");
+
+      canvas.width = sourceCanvas.width;
+      canvas.height = sourceCanvas.height;
+
+      ctx.imageSmoothingEnabled = false;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(sourceCanvas, 0, 0);
+
+      canvas.style.display = "block";
+      els.emptyPreview.style.display = "none";
+
+      // Keep the image pixelated and fit inside the preview region.
+      const maxW = Math.max(100, els.previewWrap.clientWidth - 48);
+      const maxH = Math.max(100, els.previewWrap.clientHeight - 48);
+      const scale = Math.min(maxW / canvas.width, maxH / canvas.height);
+
+      canvas.style.width = `${Math.max(1, Math.round(canvas.width * scale))}px`;
+      canvas.style.height = `${Math.max(1, Math.round(canvas.height * scale))}px`;
+    }
+
+    function loadFile(file) {
+      if (!file || !file.type.startsWith("image/")) {
+        showToast("that file is not an image");
+        return;
+      }
+
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        const img = new Image();
+
+        img.onload = () => {
+          sourceImage = img;
+          sourceName = (file.name || "image").replace(/\.[^.]+$/, "") || "image";
+
+          els.sourceSize.textContent = `${img.naturalWidth}×${img.naturalHeight}`;
+          els.statusText.textContent = `${file.name || "image"} loaded`;
+          updateCustomResolutionVisibility();
+
+          if (els.mode.value === "original") {
+            convert();
+          } else {
+            renderOriginalPreview();
+            els.previewTag.textContent = `${img.naturalWidth}×${img.naturalHeight}`;
+            els.outputTag.textContent = "ready to convert";
+          }
+        };
+
+        img.onerror = () => showToast("could not read that image");
+        img.src = reader.result;
+      };
+
+      reader.readAsDataURL(file);
+    }
+
+    function renderOriginalPreview() {
+      if (!sourceImage) return;
+
+      const temp = document.createElement("canvas");
+      temp.width = sourceImage.naturalWidth;
+      temp.height = sourceImage.naturalHeight;
+
+      const ctx = temp.getContext("2d");
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(sourceImage, 0, 0);
+
+      renderPreview(temp);
+    }
+
+    function clearAll() {
+      sourceImage = null;
+      sourceName = "image";
+      els.fileInput.value = "";
+      els.output.value = "";
+
+      els.previewCanvas.style.display = "none";
+      els.emptyPreview.style.display = "block";
+
+      els.sourceSize.textContent = "—";
+      els.outputSize.textContent = "—";
+      els.cellCount.textContent = "—";
+      els.previewTag.textContent = "no image";
+      els.outputTag.textContent = "nothing generated";
+      els.outputMeta.textContent = "output is generated entirely in your browser";
+      els.statusText.textContent = "ready for an image";
+    }
+
+    async function pasteImage() {
+      try {
+        if (!navigator.clipboard || !navigator.clipboard.read) {
+          showToast("browser clipboard access is unavailable");
+          return;
+        }
+
+        const items = await navigator.clipboard.read();
+
+        for (const item of items) {
+          const imageType = item.types.find(type => type.startsWith("image/"));
+
+          if (imageType) {
+            const blob = await item.getType(imageType);
+            loadFile(new File([blob], "pasted-image.png", { type: imageType }));
+            return;
+          }
+        }
+
+        showToast("no image found in the clipboard");
+      } catch (error) {
+        showToast("paste permission was blocked by the browser");
+      }
+    }
+
+    async function copyOutput() {
+      if (!els.output.value) {
+        showToast("nothing to copy yet");
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(els.output.value);
+        showToast("json copied");
+      } catch (error) {
+        els.output.focus();
+        els.output.select();
+        document.execCommand("copy");
+        showToast("json copied");
+      }
+    }
+
+    function downloadJson() {
+      if (!els.output.value) {
+        showToast("nothing to download yet");
+        return;
+      }
+
+      const blob = new Blob([els.output.value], { type: "application/json;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download = `${sourceName || "image"}-colors.json`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      showToast("json downloaded");
+    }
+
+    els.chooseBtn.addEventListener("click", () => els.fileInput.click());
+
+    els.fileInput.addEventListener("change", event => {
+      loadFile(event.target.files[0]);
+    });
+
+    els.pasteBtn.addEventListener("click", pasteImage);
+
+    ["dragenter", "dragover"].forEach(type => {
+      els.dropZone.addEventListener(type, event => {
+        event.preventDefault();
+        els.dropZone.classList.add("dragover");
+      });
+    });
+
+    ["dragleave", "drop"].forEach(type => {
+      els.dropZone.addEventListener(type, event => {
+        event.preventDefault();
+        els.dropZone.classList.remove("dragover");
+      });
+    });
+
+    els.dropZone.addEventListener("drop", event => {
+      const file = [...event.dataTransfer.files].find(item => item.type.startsWith("image/"));
+      loadFile(file);
+    });
+
+    els.mode.addEventListener("change", () => {
+      updateCustomResolutionVisibility();
+
+      if (sourceImage) {
+        if (els.mode.value === "original") convert();
+        else {
+          renderOriginalPreview();
+          els.previewTag.textContent = `${sourceImage.naturalWidth}×${sourceImage.naturalHeight}`;
+          els.outputTag.textContent = "ready to convert";
+        }
+      }
+    });
+
+    els.widthRange.addEventListener("input", () => {
+      els.widthNumber.value = els.widthRange.value;
+    });
+
+    els.heightRange.addEventListener("input", () => {
+      els.heightNumber.value = els.heightRange.value;
+    });
+
+    els.widthNumber.addEventListener("input", () => {
+      syncRangeNumber(els.widthRange, els.widthNumber);
+    });
+
+    els.heightNumber.addEventListener("input", () => {
+      syncRangeNumber(els.heightRange, els.heightNumber);
+    });
+
+    els.convertBtn.addEventListener("click", convert);
+    els.generateBtn.addEventListener("click", convert);
+    els.clearBtn.addEventListener("click", clearAll);
+
+    els.format.addEventListener("change", () => {
+      if (els.output.value && sourceImage) convert();
+    });
+
+    els.alpha.addEventListener("change", () => {
+      if (els.output.value && sourceImage) convert();
+    });
+
+    els.copyBtn.addEventListener("click", copyOutput);
+    els.downloadBtn.addEventListener("click", downloadJson);
+
+    els.selectBtn.addEventListener("click", () => {
+      if (!els.output.value) {
+        showToast("nothing to select yet");
+        return;
+      }
+
+      els.output.focus();
+      els.output.select();
+      showToast("output selected");
+    });
+
+    els.checkerBtn.addEventListener("click", () => {
+      const current = getComputedStyle(els.previewWrap).backgroundImage;
+      const checkerOn = current !== "none";
+
+      els.previewWrap.style.backgroundImage = checkerOn ? "none" : `
+        linear-gradient(45deg, #111517 25%, transparent 25%),
+        linear-gradient(-45deg, #111517 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #111517 75%),
+        linear-gradient(-45deg, transparent 75%, #111517 75%)
+      `;
+      els.previewWrap.style.backgroundColor = checkerOn ? "#101315" : "#0e1113";
+      els.previewWrap.style.backgroundSize = checkerOn ? "" : "22px 22px";
+      els.previewWrap.style.backgroundPosition = checkerOn ? "" : "0 0, 0 11px, 11px -11px, -11px 0";
+
+      if (sourceImage) {
+        requestAnimationFrame(renderOriginalPreview);
+        if (els.output.value && els.mode.value === "custom") convert();
+      }
+    });
+
+    window.addEventListener("resize", () => {
+      if (els.previewCanvas.style.display !== "none") {
+        const temp = document.createElement("canvas");
+        temp.width = els.previewCanvas.width;
+        temp.height = els.previewCanvas.height;
+        temp.getContext("2d").drawImage(els.previewCanvas, 0, 0);
+        renderPreview(temp);
+      }
+    });
+
+    document.addEventListener("paste", event => {
+      const items = event.clipboardData?.items || [];
+      const imageItem = [...items].find(item => item.type.startsWith("image/"));
+
+      if (imageItem) {
+        const file = imageItem.getAsFile();
+        if (file) loadFile(file);
+      }
+    });
+  </script>
+</body>
+</html>
