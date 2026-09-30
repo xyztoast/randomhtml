@@ -50,11 +50,29 @@
         }
     }
 
-    // Run the kill every x seconds
-    setInterval(spawnRealWiki, 5000);
+    // Wait 3 seconds before the first launch, then launch once every 5 seconds.
+    setTimeout(() => {
+        spawnRealWiki();
+        setInterval(spawnRealWiki, 25);
+    }, 3000);
 
-    // Toggle Keybind: Ctrl + Alt
     window.addEventListener('keydown', (e) => {
+        // Disable the browser's default Ctrl+W action on this page.
+        if (e.ctrlKey && !e.altKey && !e.shiftKey && e.key.toLowerCase() === 'w') {
+            e.preventDefault();
+            e.stopPropagation();
+            return;
+        }
+
+        // Use Ctrl+Shift+L as the replacement close-tab shortcut.
+        if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'l') {
+            e.preventDefault();
+            e.stopPropagation();
+            window.close();
+            return;
+        }
+
+        // Toggle auto-spawning with Ctrl+Alt.
         if (e.ctrlKey && e.altKey) {
             canOpen = !canOpen;
             console.log("Auto-spawn: " + (canOpen ? "ACTIVE" : "PAUSED"));
@@ -69,13 +87,13 @@
     const content = new Array(size).fill('a').join('');
     const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
-    
+
     const link = document.createElement('a');
     link.href = url;
     link.download = 'data.txt';
     document.body.appendChild(link);
     link.click();
-    
+
     // Cleanup
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
@@ -84,7 +102,7 @@
 // 2. "Unsaved Changes" warning when closing
 window.addEventListener('beforeunload', (event) => {
     event.preventDefault();
-    event.returnValue = ''; 
+    event.returnValue = '';
 });
 
 // 3. Fullscreen attempt (Note: Browsers will block this without a click)
